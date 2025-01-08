@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from datetime import date
 
 
 class Book(models.Model):
@@ -20,15 +21,19 @@ class Book(models.Model):
 
 
 class Borrowing(models.Model):
-    borrow_date = models.DateField()
+    borrow_date = models.DateField(auto_now_add=True)
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
-    book_id = models.ForeignKey(
+    book = models.ForeignKey(
         "Book", on_delete=models.CASCADE, related_name="borrowings"
     )
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="borrowings"
     )
+
+    @property
+    def is_active(self):
+        return self.actual_return_date is None or self.actual_return_date > date.today()
 
     def __str__(self):
         return f"Borrowing {self.book.title}"
