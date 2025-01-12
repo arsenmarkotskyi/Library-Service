@@ -1,5 +1,4 @@
 from telegram import Bot
-import logging
 import asyncio
 
 
