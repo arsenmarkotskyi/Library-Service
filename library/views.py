@@ -1,12 +1,11 @@
 import stripe
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
-from rest_framework import viewsets, permissions
-from rest_framework.decorators import action, api_view
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 from datetime import date
 from django.conf import settings
 
@@ -44,12 +43,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return BorrowingSerializer
 
     def perform_create(self, serializer):
-        book = serializer.validated_data.get("book")
-        if book.inventory <= 0:
-            raise ValidationError({"error": "Книга не доступна для позичання."})
-        book.save()
         borrowing = serializer.save(user=self.request.user)
-
         # Сповіщення через Telegram
         borrowing_details = f"Книга: '{borrowing.book.title}', Позичальник: {borrowing.user.email}, Очікувана дата повернення: {borrowing.expected_return_date}"
         notify_new_borrowing(borrowing_details)
@@ -154,8 +148,6 @@ def payment_success(request):
             return JsonResponse({"message": "Payment was successful!"})
     except stripe.error.StripeError as e:
         return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"message": "Payment was successful!"})
 
 
 def payment_cancel(request):

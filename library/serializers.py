@@ -31,6 +31,8 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         book = validated_data["book"]
+        if book.inventory <= 0:
+            raise serializers.ValidationError("Ця книга недоступна для позичання.")
         book.inventory -= 1
         book.save()
         return super().create(validated_data)

@@ -18,7 +18,7 @@ app_name = "library"
 router = routers.DefaultRouter()
 router.register("books", BookViewSet, basename="books")
 router.register(r"borrowings", BorrowingViewSet, basename="borrowing")
-router.register("payments", PaymentViewSet, basename="payment")
+router.register("payment", PaymentViewSet, basename="payment")
 
 
 urlpatterns = [

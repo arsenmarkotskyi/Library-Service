@@ -35,6 +35,12 @@ class Borrowing(models.Model):
     def is_active(self):
         return self.actual_return_date is None or self.actual_return_date > date.today()
 
+    @property
+    def price(self):
+        end_date = self.actual_return_date or date.today()
+        days_borrowed = (end_date - self.borrow_date).days
+        return max(days_borrowed, 0) * self.book.daily_fee
+
     def __str__(self):
         return f"Borrowing {self.book.title}"
 
