@@ -5,18 +5,27 @@ from library.views import (
     BookViewSet,
     BorrowingViewSet,
     PaymentViewSet,
-    # borrow_book
+    # create_payment,
+    # payment_response,
+    payment_success,
+    payment_cancel,
+    create_stripe_session,
+    payment_status,
 )
 
 app_name = "library"
 
 router = routers.DefaultRouter()
 router.register("books", BookViewSet, basename="books")
-router.register(r"borrowing", BorrowingViewSet, basename="borrowing")
-router.register("payment", PaymentViewSet, basename="payment")
+router.register(r"borrowings", BorrowingViewSet, basename="borrowing")
+router.register("payments", PaymentViewSet, basename="payment")
 
 
 urlpatterns = [
     path("", include(router.urls)),
-    # path("borrow/", borrow_book, name="borrow_book"),
+    path("payments/<int:borrowing_id>/", create_stripe_session, name="create_payment"),
+    path("payments/success/", payment_success, name="payment_success"),
+    path("payments/cancel/", payment_cancel, name="payment_cancel"),
+    path("payments/status/<str:session_id>/", payment_status, name="payment_status"),
+    # path("webhook/stripe/", stripe_webhook, name="stripe-webhook"),
 ]
