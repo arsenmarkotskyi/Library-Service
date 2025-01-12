@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from library.models import Book, Borrowing, Payment
 
 
@@ -9,13 +8,8 @@ class BookSerializer(serializers.ModelSerializer):
         fields = ("id", "title", "author", "cover", "inventory", "daily_fee")
 
 
-# class BookListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Book
-#         fields = ("title", "author", "daily_fee")
-
-
 class BorrowingSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Borrowing
         fields = [
@@ -24,7 +18,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user",
+            # "user",
         ]
 
     def validate(self, data):
@@ -42,7 +36,49 @@ class BorrowingSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class BorrowingListSerializer(serializers.ModelSerializer):
+    book_name = serializers.CharField(source="book.title")
+    user_email = serializers.CharField(source="user.email")
+
+    class Meta:
+        model = Borrowing
+        fields = [
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book_name",
+            "user_email",
+        ]
+
+
+class BorrowingDetailSerializer(serializers.ModelSerializer):
+    book = BookSerializer(read_only=True)
+
+    class Meta:
+        model = Borrowing
+        fields = [
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+        ]
+
+
 class PaymentSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source="get_status_display", read_only=True)
+    type = serializers.CharField(source="get_type_display", read_only=True)
+
     class Meta:
         model = Payment
-        fields = ("type", "session_url")
+        fields = [
+            "id",
+            "status",
+            "type",
+            "borrowing_id",
+            "session_url",
+            "session_id",
+            "money_to_pay",
+        ]
+        read_only_fields = ["id"]
